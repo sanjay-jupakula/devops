@@ -1,4 +1,3 @@
-
 from tkinter import *
 #for sending dialogue message box
 from tkinter import messagebox
@@ -13,10 +12,9 @@ import ssl
 def seggregation():
     global remail
     rdf=pd.read_csv('Original data.csv')
-    remailrow=rdf[rdf['Roll_No']==rdata]
+    remailrow=rdf[rdf['Roll No']==rdata]
     remail=remailrow['Email']
     print(remail)
-    
                   
 #sending Email
 def sendemail():
@@ -41,13 +39,13 @@ def sendemail():
         smt.sendmail(e_sender,e_receiver,em.as_string())
         
 #scanning into csv file
-df=pd.DataFrame(columns=['Roll_No'])
+df=pd.DataFrame(columns=['Roll No'])
 def writecsv():
     global df
     global rdata
     
     rdata=data.get()
-    df=df.append({'Roll_No':rdata},ignore_index=True)
+    df=df.append({'Roll No':rdata},ignore_index=True)
     df.index += 1
     #sending email
     sendemail()
@@ -156,5 +154,5 @@ def logintab():
 
 ############ main()
 
-logintab()
-
+#logintab()
+scantab()

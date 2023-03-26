@@ -1,56 +1,18 @@
-
 from tkinter import *
-#for sending dialogue message box
 from tkinter import messagebox
 import os
 import pandas as pd
-#for mailing
-import smtplib
-from email.message import EmailMessage
-import ssl
 
-#data segregation
-def seggregation():
-    global remail
-    rdf=pd.read_csv('Original data.csv')
-    remailrow=rdf[rdf['Roll_No']==rdata]
-    remail=remailrow['Email']
-    print(remail)
-    
-                  
-#sending Email
-def sendemail():
-    e_sender='drplusdevops@gmail.com'
-    seggregation()
-    e_pass='gfyjnhyyodpqutvy'
-    
-    e_receiver=remail
+#creating a dataframe
 
-    sub="Attendance report."
-    body="Attendance captured for today."
+df=pd.DataFrame(columns=['Roll No'])
 
-    em=EmailMessage()
-    em['From']=e_sender
-    em['To']=e_receiver
-    em['Subject']=sub
-    em.set_content(body)
-
-    context=ssl.create_default_context()
-    with smtplib.SMTP_SSL('smtp.gmail.com',465,context=context) as smt:
-        smt.login(e_sender,e_pass)
-        smt.sendmail(e_sender,e_receiver,em.as_string())
-        
 #scanning into csv file
-df=pd.DataFrame(columns=['Roll_No'])
 def writecsv():
     global df
-    global rdata
-    
     rdata=data.get()
-    df=df.append({'Roll_No':rdata},ignore_index=True)
+    df=df.append({'Roll No':rdata},ignore_index=True)
     df.index += 1
-    #sending email
-    sendemail()
     df.to_csv('attendance.csv')
    
 #scan() funtion
@@ -61,6 +23,8 @@ def scan():
     reset()
 
 #reset()
+
+
 def reset():
     den.delete(0,END)
 
@@ -157,4 +121,4 @@ def logintab():
 ############ main()
 
 logintab()
-
+#scantab()

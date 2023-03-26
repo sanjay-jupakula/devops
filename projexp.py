@@ -1,4 +1,3 @@
-
 from tkinter import *
 #for sending dialogue message box
 from tkinter import messagebox
@@ -8,16 +7,36 @@ import pandas as pd
 import smtplib
 from email.message import EmailMessage
 import ssl
+#for sending attachments
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+from email.mime.base import MIMEBase
+from email import encoders
+
 
 #data segregation
 def seggregation():
     global remail
+    
     rdf=pd.read_csv('Original data.csv')
     remailrow=rdf[rdf['Roll_No']==rdata]
     remail=remailrow['Email']
     print(remail)
     
-                  
+#data collegewise segration
+def segdata():
+    global sedata
+    sedata=pd.read_csv('attendance.csv')
+    c1=sedata[sedata['Roll_No'].str.contains('A9')]
+    c1=c1['Roll_No']
+    c2=sedata[sedata['Roll_No'].str.contains('P3')]
+    c2=c2['Roll_No']
+    c3=sedata[sedata['Roll_No'].str.contains('MH')]
+    c3=c3['Roll_No']
+    c1.to_csv('AEC.csv',index=False)
+    c2.to_csv('ACET.csv',index=False)
+    c3.to_csv('ACOE.csv',index=False)
+    
 #sending Email
 def sendemail():
     e_sender='drplusdevops@gmail.com'
@@ -39,7 +58,84 @@ def sendemail():
     with smtplib.SMTP_SSL('smtp.gmail.com',465,context=context) as smt:
         smt.login(e_sender,e_pass)
         smt.sendmail(e_sender,e_receiver,em.as_string())
-        
+
+#college mail Seggregation
+def clgemail():
+    global c1email
+    
+    cdf=pd.read_csv('clg_mail_data.csv')
+    c1emailrow=cdf[cdf['clg_name']=='AEC']
+    c1email=c1emailrow['clg_mail']
+    sample=str(c1email)
+    sample=sample[5:]
+    s=""
+    for i in sample:
+        if(i=="\n" or i==' '):
+            break
+        s+=i
+    print(s)
+    sendemailclg(s,"AEC.csv")
+    print("AEC",s)
+
+    c2emailrow=cdf[cdf['clg_name']=='ACET']
+    c2email=c2emailrow['clg_mail']
+    sample=str(c2email)
+    sample=sample[5:]
+    s=""
+    for i in sample:
+        if(i=="\n" or i==' '):
+            break
+        s+=i
+    print(s)
+    sendemailclg(s,"ACET.csv")
+    print("ACET",s)
+
+    c3emailrow=cdf[cdf['clg_name']=='ACOE']
+    c3email=c3emailrow['clg_mail']
+    sample=str(c3email)
+    sample=sample[5:]
+    s=""
+    for i in sample:
+        if(i=="\n" or i==' '):
+            break
+        s+=i
+    print(s)
+    sendemailclg(s,"ACOE.csv")
+    print("ACOE",s)
+
+#sending mail to colleges
+def sendemailclg(cmail,file):
+    port=465
+    smtp_server='smtp.gmail.com'
+    
+    e_sender='drplusdevops@gmail.com'
+    e_pass='gfyjnhyyodpqutvy'
+    e_receiver=cmail
+          
+    sub="Attendance report."
+    body="Thub Attendance for today."
+
+    aem=MIMEMultipart()
+    aem['From']=e_sender
+    aem['To']=e_receiver
+    aem['Subject']=sub
+
+    aem.attach(MIMEText(body,'plain'))
+
+    filename=file
+
+    attachment=open(filename,'rb')
+    attachment_package=MIMEBase('application','octet-stream')
+    attachment_package.set_payload((attachment).read())
+    encoders.encode_base64(attachment_package)
+    attachment_package.add_header('Content-Disposition',"attachment; filename= "+filename)
+    aem.attach(attachment_package)
+
+    context=ssl.create_default_context()
+    with smtplib.SMTP_SSL('smtp.gmail.com',465,context=context) as smt:
+        smt.login(e_sender,e_pass)
+        smt.sendmail(e_sender,e_receiver,aem.as_string())
+    
 #scanning into csv file
 df=pd.DataFrame(columns=['Roll_No'])
 def writecsv():
@@ -118,7 +214,15 @@ def login():
         messagebox.showinfo("Username Error","Please enter the correct password!")
     else:
         messagebox.showinfo("Password Error","Please enter correct details!")
-  
+
+
+#exit()
+def exitfun():
+    clgemail()
+    root.destroy()
+    
+
+    
 #logintab() funtion  
 def logintab():
     
@@ -149,12 +253,12 @@ def logintab():
     eun=Entry(root,textvariable=username,width=22,bd=2,font=("Californian FB",10)).place(relx=0.55,rely=0.4,anchor=CENTER)
     eps=Entry(root,textvariable=password,width=22,bd=2,font=("Californian FB",10)).place(relx=0.55,rely=0.5,anchor=CENTER)
 
-    Button(root,text="Exit",height="1",width=10,bd=1,command=root.destroy).place(relx=0.45,rely=0.6,anchor=CENTER)
+    Button(root,text="Exit",height="1",width=10,bd=1,command=exitfun).place(relx=0.45,rely=0.6,anchor=CENTER)
     Button(root,text="Login",height="1",width=10,bd=1,command=login).place(relx=0.55,rely=0.6,anchor=CENTER)           
     
     root.mainloop()
 
 ############ main()
 
-logintab()
 
+logintab()

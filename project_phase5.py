@@ -1,4 +1,3 @@
-
 from tkinter import *
 #for sending dialogue message box
 from tkinter import messagebox

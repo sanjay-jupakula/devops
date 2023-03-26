@@ -1,4 +1,3 @@
-
 from tkinter import *
 #for sending dialogue message box
 from tkinter import messagebox
@@ -8,6 +7,12 @@ import pandas as pd
 import smtplib
 from email.message import EmailMessage
 import ssl
+#for sending attachments
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+from email.mime.base import MIMEBase
+from email import encoders
+
 
 #data segregation
 def seggregation():
@@ -17,7 +22,20 @@ def seggregation():
     remail=remailrow['Email']
     print(remail)
     
-                  
+#data collegewise segration
+def segdata():
+    global sedata
+    sedata=pd.read_csv('attendance.csv')
+    c1=sedata[sedata['Roll_No'].str.contains('A9')]
+    c1=c1['Roll_No']
+    c2=sedata[sedata['Roll_No'].str.contains('P3')]
+    c2=c2['Roll_No']
+    c3=sedata[sedata['Roll_No'].str.contains('MH')]
+    c3=c3['Roll_No']
+    c1.to_csv('AEC.csv',index=False)
+    c2.to_csv('ACET.csv',index=False)
+    c3.to_csv('ACOE.csv',index=False)
+    
 #sending Email
 def sendemail():
     e_sender='drplusdevops@gmail.com'
@@ -39,7 +57,40 @@ def sendemail():
     with smtplib.SMTP_SSL('smtp.gmail.com',465,context=context) as smt:
         smt.login(e_sender,e_pass)
         smt.sendmail(e_sender,e_receiver,em.as_string())
-        
+
+#sending mail to colleges
+def sendemailclg():
+    port=465
+    smtp_server='smtp.gmail.com'
+    
+    e_sender='drplusdevops@gmail.com'
+    e_pass='gfyjnhyyodpqutvy'
+    e_receiver='sanjusiddu1951@gmail.com'
+
+    sub="Attendance report."
+    body="Thub Attendance for today."
+
+    aem=MIMEMultipart()
+    aem['From']=e_sender
+    aem['To']=e_receiver
+    aem['Subject']=sub
+
+    aem.attach(MIMEText(body,'plain'))
+
+    filename="ACET.csv"
+
+    attachment=open(filename,'rb')
+    attachment_package=MIMEBase('application','octet-stream')
+    attachment_package.set_payload((attachment).read())
+    encoders.encode_base64(attachment_package)
+    attachment_package.add_header('Content-Disposition',"attachment; filename= "+filename)
+    aem.attach(attachment_package)
+
+    context=ssl.create_default_context()
+    with smtplib.SMTP_SSL('smtp.gmail.com',465,context=context) as smt:
+        smt.login(e_sender,e_pass)
+        smt.sendmail(e_sender,e_receiver,aem.as_string())  
+    
 #scanning into csv file
 df=pd.DataFrame(columns=['Roll_No'])
 def writecsv():
@@ -156,5 +207,6 @@ def logintab():
 
 ############ main()
 
-logintab()
-
+#logintab()
+#segdata()
+sendemailclg()
